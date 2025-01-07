@@ -1,0 +1,14 @@
+[package]
+name = "stgit-extras"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "stg-check"
+path = "src/check.rs"
+
+[[bin]]
+name = "stg-setup"
+path = "src/setup.rs"
+
+[dependencies]
