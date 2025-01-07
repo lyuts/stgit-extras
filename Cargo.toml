@@ -12,3 +12,4 @@ name = "stg-setup"
 path = "src/setup.rs"
 
 [dependencies]
+anyhow = "1.0"
