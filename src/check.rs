@@ -1,4 +1,7 @@
+mod git;
+
 use anyhow::{anyhow, Context};
+use git::list_branches;
 use std::process::{Command, Stdio};
 
 fn stg_exists() -> anyhow::Result<()> {
@@ -34,24 +37,6 @@ fn dev_branch_exists() -> anyhow::Result<()> {
         }
         None => Err(anyhow!("Unable to find development branch")),
     }
-}
-
-fn list_branches() -> anyhow::Result<Vec<String>> {
-    let output: Vec<u8> = Command::new("git")
-        .arg("for-each-ref")
-        .arg("--format='%(refname:short)'")
-        .arg("refs/heads/")
-        .output()
-        .context("Unable to list branches.")?
-        .stdout;
-
-    let branches: Vec<String> = std::str::from_utf8(&output)?
-        .trim()
-        .split("\n")
-        .map(|s| s.replace("'", ""))
-        .collect();
-
-    Ok(branches)
 }
 
 fn check<F>(fns: &[F]) -> anyhow::Result<()>
