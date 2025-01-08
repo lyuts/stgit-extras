@@ -3,35 +3,28 @@ mod git;
 use std::process::{Command, Stdio};
 
 use anyhow::{anyhow, Context};
-use git::{branch_exists, list_branches};
+use git::branch_exists;
 
 fn ensure_dev_branch() -> anyhow::Result<String> {
     print!("Detecting development branch...");
-    let mut branches: Vec<String> = list_branches()?
-        .iter()
-        .filter(|b| {
-            ["dev", "devel", "develop", "development"]
-                .to_vec()
-                .contains(&&b.as_str())
-        })
-        .cloned()
-        .collect::<Vec<String>>();
-
-    branches.sort();
+    let dev_branch: Option<String> = branch_exists("dev")
+        .or(branch_exists("devel"))
+        .or(branch_exists("develop"))
+        .or(branch_exists("development"))
+        .ok();
 
     let default_dev_branch = "dev".to_string();
-    let dev_branch = branches.first().unwrap_or(&default_dev_branch);
-    println!(" {}", dev_branch);
+    println!(" {}", dev_branch.clone().unwrap_or_default());
     let main_branch = branch_exists("master").or(branch_exists("main"))?;
-    if branches.is_empty() {
+    if dev_branch.is_none() {
         print!(
             "Creating branch {} from origin/{} ...",
-            dev_branch, main_branch
+            default_dev_branch, main_branch
         );
         let child = Command::new("git")
             .arg("checkout")
             .arg("-b")
-            .arg(dev_branch)
+            .arg(&default_dev_branch)
             .arg(format!("origin/{}", main_branch))
             .output()
             .context("Failed to create development branch.")?;
@@ -41,7 +34,7 @@ fn ensure_dev_branch() -> anyhow::Result<String> {
         } else {
             return Err(anyhow!(
                 "Failed to create branch {}:\n {}",
-                dev_branch,
+                default_dev_branch,
                 std::str::from_utf8(&child.stderr)?
             ));
         }
@@ -55,7 +48,7 @@ fn ensure_dev_branch() -> anyhow::Result<String> {
             .context("Failed to switch back to the original branch.")?;
     }
 
-    Ok(dev_branch.to_string())
+    Ok(dev_branch.unwrap_or(default_dev_branch))
 }
 
 fn init_stgit(branch_name: String) -> anyhow::Result<()> {

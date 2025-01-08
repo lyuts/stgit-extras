@@ -1,7 +1,7 @@
 mod git;
 
 use anyhow::{anyhow, Context};
-use git::list_branches;
+use git::branch_exists;
 use std::process::{Command, Stdio};
 
 fn stg_exists() -> anyhow::Result<()> {
@@ -17,18 +17,11 @@ fn stg_exists() -> anyhow::Result<()> {
 
 fn dev_branch_exists() -> anyhow::Result<()> {
     print!("Detecting development branch...");
-    let branches = list_branches()?;
-    let maybe_branch: Option<String> = branches
-        .iter()
-        .filter(|b| {
-            ["dev", "devel", "develop", "development"]
-                .to_vec()
-                .contains(&&b.as_str())
-        })
-        .collect::<Vec<&String>>()
-        .first()
-        .cloned()
-        .cloned();
+    let maybe_branch: Option<String> = branch_exists("dev")
+        .or(branch_exists("devel"))
+        .or(branch_exists("develop"))
+        .or(branch_exists("development"))
+        .ok();
 
     match maybe_branch {
         Some(branch) => {
