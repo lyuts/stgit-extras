@@ -12,7 +12,7 @@ fn stg_exists() -> anyhow::Result<()> {
         .stderr(Stdio::null())
         .output()
         .map(|_| ())
-        .context("stg binary not fond")
+        .context("stg binary not found")
 }
 
 fn dev_branch_exists() -> anyhow::Result<()> {
