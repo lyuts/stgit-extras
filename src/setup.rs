@@ -57,8 +57,6 @@ fn init_stgit(branch_name: String) -> anyhow::Result<()> {
         .arg("init")
         .arg("-b")
         .arg(branch_name)
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
         .output()
         .context("Failed to initialize stgit stack.")?;
     if child.status.success() {
