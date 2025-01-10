@@ -4,15 +4,22 @@ use anyhow::{anyhow, Context};
 use git::branch_exists;
 use std::process::{Command, Stdio};
 
-fn stg_exists() -> anyhow::Result<()> {
-    print!("Checking stg binary...");
-    Command::new("stg")
-        .arg("version")
+fn bin_exists(bin_name: &str) -> anyhow::Result<()> {
+    print!("Checking {} binary...", bin_name);
+    Command::new(bin_name)
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .output()
         .map(|_| ())
-        .context("stg binary not found")
+        .with_context(|| format!("{} binary not found", bin_name))
+}
+
+fn git_exists() -> anyhow::Result<()> {
+    bin_exists("git")
+}
+
+fn stg_exists() -> anyhow::Result<()> {
+    bin_exists("stg")
 }
 
 fn dev_branch_exists() -> anyhow::Result<()> {
@@ -50,6 +57,6 @@ where
 }
 
 fn main() -> anyhow::Result<()> {
-    check([stg_exists, dev_branch_exists].as_slice())?;
+    check([git_exists, stg_exists, dev_branch_exists].as_slice())?;
     Ok(())
 }
