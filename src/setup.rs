@@ -58,7 +58,7 @@ fn init_stgit(branch_name: String) -> anyhow::Result<()> {
         .output()
         .context("Failed to initialize stgit stack.")?;
     if child.status.success() {
-        print!(" Done.");
+        println!(" Done.");
         Ok(())
     } else {
         Err(anyhow!("Failed to initialize stgit stack:\n{}", std::str::from_utf8(&child.stderr)?))
