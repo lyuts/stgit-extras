@@ -1,6 +1,6 @@
 mod git;
 
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use anyhow::{anyhow, Context};
 use git::branch_exists;
@@ -42,9 +42,7 @@ fn ensure_dev_branch() -> anyhow::Result<String> {
         Command::new("git")
             .arg("checkout")
             .arg("-")
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .spawn()
+            .output()
             .context("Failed to switch back to the original branch.")?;
     }
 
